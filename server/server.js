@@ -1,6 +1,5 @@
 // Import necessary libraries
 const express = require('express');
-// const { body, validationResult } = require('express-validator');
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
@@ -49,6 +48,7 @@ const urlSchema = new mongoose.Schema({
       timestamp: { type: Date, default: Date.now },
       ipAddress: String,
       device: String,
+      location: String,
     },
   ],
   expirationDate: { type: Date },
@@ -76,35 +76,43 @@ const authenticate = (req, res, next) => {
 
 // Register a new user
 app.post(
-	'/signup',
-	[
-	  body('name').notEmpty().withMessage('Name is required'),
-	  body('email').isEmail().withMessage('Invalid email'),
-	  body('mobile').notEmpty().withMessage('Mobile number is required'),
-	  body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
-	],
-	async (req, res) => {
-	  // Validate request data
+  '/signup',
+  [
+    body('name').notEmpty().withMessage('Name is required'),
+    body('email').isEmail().withMessage('Invalid email'),
+    body('mobile').notEmpty().withMessage('Mobile number is required'),
+    body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
 
-	  const { name, email, mobile, password } = req.body;
-  
-	  try {
-		// Hash the password
-		const hashedPassword = await bcrypt.hash(password, 10);
-  
-		// Create a new user
-		const newUser = new User({ name, email, mobile, password: hashedPassword });
-		await newUser.save();
-  
-		// Send success response
-		res.status(201).json({ message: 'User registered successfully' });
-	  } catch (error) {
-		// Handle database errors
-		console.error('Error registering user:', error);
-		res.status(500).json({ message: 'Error registering user', error: error.message });
-	  }
-	}
-  );
+    const { name, email, mobile, password } = req.body;
+
+    try {
+      // Check if user already exists
+      const existingUser = await User.findOne({ email });
+      if (existingUser) {
+        return res.status(400).json({ message: 'User already exists' });
+      }
+
+      // Hash the password
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      // Create a new user
+      const newUser = new User({ name, email, mobile, password: hashedPassword });
+      await newUser.save();
+
+      // Send success response
+      res.status(201).json({ message: 'User registered successfully' });
+    } catch (error) {
+      console.error('Error registering user:', error);
+      res.status(500).json({ message: 'Error registering user', error: error.message });
+    }
+  }
+);
 
 // Login user
 app.post('/login', async (req, res) => {
@@ -112,14 +120,22 @@ app.post('/login', async (req, res) => {
 
   try {
     const user = await User.findOne({ email });
-    if (!user || !(await bcrypt.compare(password, user.password))) {
+    if (!user) {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
 
-    const token = jwt.sign({ id: user._id }, process.env.SECRET_KEY, { expiresIn: '1h' });
+    // Compare passwords
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res.status(401).json({ message: 'Invalid email or password' });
+    }
+
+    // Generate JWT token
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '24h' });
     res.status(200).json({ token });
   } catch (error) {
-    res.status(500).json({ message: 'Error logging in', error });
+    console.error('Error logging in:', error);
+    res.status(500).json({ message: 'Error logging in', error: error.message });
   }
 });
 
@@ -147,7 +163,8 @@ app.post('/shorten', authenticate, async (req, res) => {
 
     res.status(201).json({ shortUrl: fullShortUrl });
   } catch (error) {
-    res.status(500).json({ message: 'Error creating short URL', error });
+    console.error('Error creating short URL:', error);
+    res.status(500).json({ message: 'Error creating short URL', error: error.message });
   }
 });
 
@@ -179,7 +196,8 @@ app.get('/:shortUrl', async (req, res) => {
 
     res.redirect(urlRecord.originalUrl);
   } catch (error) {
-    res.status(500).json({ message: 'Error redirecting', error });
+    console.error('Error redirecting:', error);
+    res.status(500).json({ message: 'Error redirecting', error: error.message });
   }
 });
 
@@ -198,7 +216,8 @@ app.get('/analytics/:shortUrl', authenticate, async (req, res) => {
       clicks: urlRecord.clicks,
     });
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching analytics', error });
+    console.error('Error fetching analytics:', error);
+    res.status(500).json({ message: 'Error fetching analytics', error: error.message });
   }
 });
 
@@ -248,12 +267,69 @@ app.get('/dashboard', authenticate, async (req, res) => {
       })),
     });
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching dashboard data', error });
+    console.error('Error fetching dashboard data:', error);
+    res.status(500).json({ message: 'Error fetching dashboard data', error: error.message });
+  }
+});
+
+// Fetch all links created by the user
+app.get('/links', authenticate, async (req, res) => {
+  try {
+    const urls = await URL.find({ createdBy: req.user.id });
+    res.status(200).json(urls);
+  } catch (error) {
+    console.error('Error fetching links:', error);
+    res.status(500).json({ message: 'Error fetching links', error: error.message });
+  }
+});
+// Fetch user profile
+app.get('/user', authenticate, async (req, res) => {
+	try {
+	  const user = await User.findById(req.user.id);
+	  if (!user) {
+		return res.status(404).json({ message: 'User not found' });
+	  }
+	  res.status(200).json({ name: user.name, email: user.email, mobile: user.mobile });
+	} catch (error) {
+	  res.status(500).json({ message: 'Error fetching user profile', error });
+	}
+  });
+// Update user profile
+app.put('/settings', authenticate, async (req, res) => {
+  const { name, email, mobile } = req.body;
+
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    user.name = name || user.name;
+    user.email = email || user.email;
+    user.mobile = mobile || user.mobile;
+    await user.save();
+
+    res.status(200).json({ message: 'Profile updated successfully' });
+  } catch (error) {
+    console.error('Error updating profile:', error);
+    res.status(500).json({ message: 'Error updating profile', error: error.message });
+  }
+});
+
+// Delete user account
+app.delete('/settings', authenticate, async (req, res) => {
+  try {
+    await User.findByIdAndDelete(req.user.id);
+    await URL.deleteMany({ createdBy: req.user.id });
+    res.status(200).json({ message: 'Account and associated URLs deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting account:', error);
+    res.status(500).json({ message: 'Error deleting account', error: error.message });
   }
 });
 
 // Start the server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+  console.log(`🚀 Server running on port ${PORT}`);
 });

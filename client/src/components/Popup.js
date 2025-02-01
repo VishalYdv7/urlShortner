@@ -24,7 +24,6 @@ export const Popup = () => {
 		});
 	}
 
-
 	const handleCreateNew = async (e) => {
 
 	}

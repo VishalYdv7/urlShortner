@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import logo from '../images/logo.png';
 import './LoginCSS.css';
 
@@ -11,6 +12,8 @@ const LoginPage = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -43,12 +46,15 @@ const LoginPage = () => {
       }
 
       setSuccess('Login successful!');
-      // Store the JWT token or handle the redirection here
-      // Example: localStorage.setItem('token', data.token);
+      // Store the JWT token
+      localStorage.setItem('token', data.token);
       setFormData({
         email: '',
         password: '',
       });
+
+      // Redirect to dashboard
+      navigate('/');
 
     } catch (err) {
       setError(err.message || 'An error occurred during login');

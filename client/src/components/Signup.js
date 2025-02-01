@@ -35,7 +35,7 @@ const SignupPage = () => {
   
     try {
       // Send registration data to the backend
-      const response = await fetch('http://localhost:5000/signup', {
+      const response = await fetch('https://urlshortner-tm61.onrender.com/signup', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

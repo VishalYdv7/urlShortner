@@ -8,6 +8,28 @@
     height: 60px;
 }
 
+.profile-pic-container {
+    position: relative;
+
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 50px;
+    right: 0;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+}
+
+.dropdown-item {
+    padding: 10px 20px;
+    cursor: pointer;
+    color: #333;
+}
+
 .full-greeting{
     display: flex;
 }
