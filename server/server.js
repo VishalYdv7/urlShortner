@@ -20,7 +20,7 @@ app.use(device.capture());
 const mongoURI = process.env.MONGO_URI;
 
 // Connect to MongoDB
-mongoose.connect(mongoURI);
+mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true });
 
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
@@ -42,7 +42,7 @@ const User = mongoose.model('User', userSchema);
 const urlSchema = new mongoose.Schema({
   originalUrl: { type: String, required: true },
   shortUrl: { type: String, required: true, unique: true },
-  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   clicks: [
     {
       timestamp: { type: Date, default: Date.now },
@@ -65,7 +65,7 @@ const authenticate = (req, res, next) => {
     return res.status(401).json({ message: 'Authentication token missing' });
   }
 
-  jwt.verify(token, process.env.SECRET_KEY, (err, decoded) => {
+  jwt.verify(token.replace('Bearer ', ''), process.env.SECRET_KEY, (err, decoded) => {
     if (err) {
       return res.status(403).json({ message: 'Invalid token' });
     }
@@ -131,7 +131,7 @@ app.post('/login', async (req, res) => {
     }
 
     // Generate JWT token
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '24h' });
+    const token = jwt.sign({ id: user._id }, process.env.SECRET_KEY, { expiresIn: '1h' });
     res.status(200).json({ token });
   } catch (error) {
     console.error('Error logging in:', error);
@@ -282,18 +282,73 @@ app.get('/links', authenticate, async (req, res) => {
     res.status(500).json({ message: 'Error fetching links', error: error.message });
   }
 });
+
+// Fetch a single link by ID
+app.get('/links/:id', authenticate, async (req, res) => {
+  try {
+    const url = await URL.findById(req.params.id);
+    if (!url || url.createdBy.toString() !== req.user.id) {
+      return res.status(404).json({ message: 'Link not found' });
+    }
+    res.status(200).json(url);
+  } catch (error) {
+    console.error('Error fetching link:', error);
+    res.status(500).json({ message: 'Error fetching link', error: error.message });
+  }
+});
+
+// Update a link
+app.put('/links/:id', authenticate, async (req, res) => {
+  const { url, remarks, isExpirable, expirationDate } = req.body;
+
+  try {
+    const link = await URL.findById(req.params.id);
+    if (!link || link.createdBy.toString() !== req.user.id) {
+      return res.status(404).json({ message: 'Link not found' });
+    }
+
+    link.originalUrl = url || link.originalUrl;
+    link.remarks = remarks || link.remarks;
+    link.expirationDate = isExpirable ? expirationDate : null;
+    await link.save();
+
+    res.status(200).json(link);
+  } catch (error) {
+    console.error('Error updating link:', error);
+    res.status(500).json({ message: 'Error updating link', error: error.message });
+  }
+});
+
+// Delete a link
+app.delete('/links/:id', authenticate, async (req, res) => {
+  try {
+    const link = await URL.findById(req.params.id);
+    if (!link || link.createdBy.toString() !== req.user.id) {
+      return res.status(404).json({ message: 'Link not found' });
+    }
+
+    await link.remove();
+    res.status(200).json({ message: 'Link deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting link:', error);
+    res.status(500).json({ message: 'Error deleting link', error: error.message });
+  }
+});
+
 // Fetch user profile
 app.get('/user', authenticate, async (req, res) => {
-	try {
-	  const user = await User.findById(req.user.id);
-	  if (!user) {
-		return res.status(404).json({ message: 'User not found' });
-	  }
-	  res.status(200).json({ name: user.name, email: user.email, mobile: user.mobile });
-	} catch (error) {
-	  res.status(500).json({ message: 'Error fetching user profile', error });
-	}
-  });
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    res.status(200).json({ name: user.name, email: user.email, mobile: user.mobile });
+  } catch (error) {
+    console.error('Error fetching user profile:', error);
+    res.status(500).json({ message: 'Error fetching user profile', error: error.message });
+  }
+});
+
 // Update user profile
 app.put('/settings', authenticate, async (req, res) => {
   const { name, email, mobile } = req.body;
@@ -319,6 +374,7 @@ app.put('/settings', authenticate, async (req, res) => {
 // Delete user account
 app.delete('/settings', authenticate, async (req, res) => {
   try {
+    console.log('Deleting account:', req.user.id);
     await User.findByIdAndDelete(req.user.id);
     await URL.deleteMany({ createdBy: req.user.id });
     res.status(200).json({ message: 'Account and associated URLs deleted successfully' });

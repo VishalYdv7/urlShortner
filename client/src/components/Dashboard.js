@@ -8,12 +8,16 @@ import './DashboardCSS.css';
 const Dashboard = () => {
 	const [dashboardData, setDashboardData] = useState({
 		totalClicks: 0,
-		dateWiseClicks: {},
-		deviceWiseClicks: {}
+		dateWiseClicks: [],
+		deviceWiseClicks: []
 	});
 
 	useEffect(() => {
-		fetch('/dashboard')
+		fetch('/dashboard', {
+			headers: {
+				'Authorization': `Bearer ${localStorage.getItem('token')}`
+			}
+		})
 		.then(res => res.json())
 		.then(data => {
 			const deviceData = Object.entries(data.deviceWiseClicks).map(([device, clicks]) => ({

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import Popup from './Popup';
 import './HeaderCSS.css';
 
 export const Header = () => {
@@ -8,6 +9,11 @@ export const Header = () => {
 	const [greeting, setGreeting] = useState('');
 	const [moon, setMoon] = useState('');
 	const [showDropdown, setShowDropdown] = useState(false);
+	const [showPopup, setShowPopup] = useState(false);
+	const [formData, setFormData] = useState({
+		url: '',
+		remarks: ''
+	});
 	const date = new Date().toLocaleDateString('en-US', {
 		weekday: 'short',
 		month: 'short',
@@ -76,6 +82,24 @@ export const Header = () => {
 		navigate('/login'); // Redirect to the login page
 	};
 
+	const handleCreateNewClick = () => {
+		setShowPopup(true);
+	};
+
+	const handlePopupSubmit = (data) => {
+		// Handle form submission
+		console.log('Form data submitted:', data);
+		setShowPopup(false);
+	};
+
+	const handlePopupClear = () => {
+		setFormData({
+			url: '',
+			remarks: ''
+		});
+		setShowPopup(false);
+	};
+
 	return (
 		<header className="header">
 		<div className="full-greeting">
@@ -88,7 +112,7 @@ export const Header = () => {
 			</div>
 		</div>
 		<div>
-			<button className="createLink">+ Create New</button>
+			<button className="createLink" onClick={handleCreateNewClick}>+ Create New</button>
 		</div>
 		<div className="search-bar">
 			<input type="text" placeholder=" Search by remarks" />
@@ -108,6 +132,14 @@ export const Header = () => {
 			</div>
 			)}
 		</div>
+		{showPopup && (
+			<Popup
+			handleSubmit={handlePopupSubmit}
+			handleClear={handlePopupClear}
+			formData={formData}
+			setFormData={setFormData}
+			/>
+		)}
 		</header>
 	);
 };

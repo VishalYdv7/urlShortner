@@ -1,75 +1,101 @@
 import React, { useState } from 'react';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import './PopupCSS.css';
 
-export const Popup = () => {
-	const [formData, setFormData] = useState({
-		url: '',
-		remarks: '',
-		isExpirable:'',
-		expirationDate:'',
-	});
+const Popup = ({ handleSubmit, handleClear, formData, setFormData }) => {
+	const [isExpirable, setIsExpirable] = useState(false);
+	const [expirationDate, setExpirationDate] = useState(null);
+	const [errors, setErrors] = useState({});
 
-	const [error, setError] = useState('');
 	const handleChange = (e) => {
 		setFormData({ ...formData, [e.target.name]: e.target.value });
-		// Clear error when user starts typing
-		setError('');
+		setErrors({ ...errors, [e.target.name]: '' });
 	};
 
-	const handleClear = async (e) => {
-		setFormData({
-			url: '',
-			remarks: '',
-			isExpirable:'',
-			expirationDate:'',
-		});
-	}
+	const handleToggle = () => {
+		setIsExpirable(!isExpirable);
+		if (!isExpirable) {
+		setExpirationDate(null);
+		}
+	};
 
-	const handleCreateNew = async (e) => {
+	const handleDateChange = (date) => {
+		setExpirationDate(date);
+	};
 
-	}
+	const handleFormSubmit = (e) => {
+		e.preventDefault();
+		let formErrors = {};
+
+		if (!formData.url) {
+		formErrors.url = 'This field is mandatory';
+		}
+		if (!formData.remarks) {
+		formErrors.remarks = 'This field is mandatory';
+		}
+		if (isExpirable && !expirationDate) {
+		formErrors.expirationDate = 'This field is mandatory';
+		}
+
+		if (Object.keys(formErrors).length > 0) {
+		setErrors(formErrors);
+		return;
+		}
+
+		handleSubmit({ ...formData, expirationDate: isExpirable ? expirationDate : null });
+	};
 
 	return (
 		<div className='popup'>
-			<div className='top'>
-				<h3>New Link</h3>
-				<h3>X</h3>
+		<div className='popup-inner'>
+			<form onSubmit={handleFormSubmit}>
+			<p>URL</p>
+			<input
+				type="url"
+				name="url"
+				placeholder="https://web.whatsapp.com/"
+				value={formData.url}
+				onChange={handleChange}
+				required
+			/>
+			{errors.url && <span className='error'>{errors.url}</span>}
+			<p>Remarks</p>
+			<input
+				type="text"
+				name="remarks"
+				placeholder="Add remarks"
+				value={formData.remarks}
+				onChange={handleChange}
+				required
+			/>
+			{errors.remarks && <span className='error'>{errors.remarks}</span>}
+			<div className='isExpirable'>
+				<p>Link Expiration</p>
+				<label className="switch">
+				<input type="checkbox" checked={isExpirable} onChange={handleToggle} />
+				<span className="slider round"></span>
+				</label>
 			</div>
-			<div className='details'>
-				<form onSubmit={handleCreateNew}>
-					<p>Destination URL <span color='#FF0101'>*</span></p>
-					<input
-					type="url"
-					name="url"
-					placeholder="https://web.whatsapp.com/"
-					value={formData.url}
-					onChange={handleChange}
-					required
-					/>
-					<p>Remarks</p>
-					<input
-					type="remarks"
-					name="remarks"
-					placeholder="Add remarks"
-					value={formData.remarks}
-					onChange={handleChange}
-					required
-					/>
-					<div className='isExpirable'>
-						<p>Link Expiration</p>
-						
-					</div>
-					<div className='expirationDate'>
-						
-					</div>
-					<div className='bot'>
-						<button onClick={handleClear} className='clear'>Clear</button>
-						<button type="submit" className='CreateNew' >Create New</button>
-					</div>
-				</form>
+			{isExpirable && (
+				<div className='expirationDate'>
+				<DatePicker
+					selected={expirationDate}
+					onChange={handleDateChange}
+					showTimeSelect
+					dateFormat="MMM d, yyyy, h:mm aa"
+					placeholderText="Select expiration date and time"
+				/>
+				{errors.expirationDate && <span className='error'>{errors.expirationDate}</span>}
+				</div>
+			)}
+			<div className='bot'>
+				<button type="button" onClick={handleClear} className='clear'>Clear</button>
+				<button type="submit" className='CreateNew'>Create New</button>
 			</div>
-			
+			</form>
 		</div>
-	)
-}
-
+		</div>
+	);
+};
 export default Popup;
