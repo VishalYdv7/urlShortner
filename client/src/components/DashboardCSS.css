@@ -1,0 +1,45 @@
+.dashboard-container{
+    display: flex;
+    flex-direction: row;
+}
+
+.dashboard {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    padding: 24px;
+    background-color: #fff;
+}
+
+
+.total-clicks {
+    font-size: 16px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.click-value {
+    color: #1B48DA;
+    font-weight: bold;
+}
+
+.charts-container {
+    display: flex;
+    gap: 24px;
+}
+
+.chart-box {
+    flex: 1;
+    background-color: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 16px;
+}
+
+.chart-title {
+    font-size: 14px;
+    color: #1B48DA;
+    margin-bottom: 16px;
+}

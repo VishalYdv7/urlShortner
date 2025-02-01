@@ -1,0 +1,117 @@
+.login-container {
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+}
+
+.image-section {
+    flex: 1;
+    background-image: url('../images/mountain.png');
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    background-color: #a5c5f7;
+}
+
+.logo {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+}
+
+.form-section {
+    flex: 1;
+    padding: 10px;
+	margin-left: 40px;
+    display: flex;
+    flex-direction: column;
+}
+
+.header-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 20px;
+    margin-bottom: 40px;
+    margin-right: 20px;
+}
+
+.signup-btn, .login-btn {
+    padding: 8px 10px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  
+  .signup-btn {
+    background-color: transparent;
+  }
+  
+  .login-btn {
+    background-color: #1B48DA;
+    color: white;
+  }
+  
+  .form-container {
+	align-items: center;
+	padding-left: 50px;
+	max-width: 500px;
+
+    /* width: 60%; */
+  }
+  
+  .form-title {
+    margin-top: 50px;
+    margin-bottom: 30px;
+    font-size: 20px;
+    font-weight: 600;
+  }
+  
+  .login-form {
+    display: flex;
+    flex-direction: column;
+	margin-top: 100px;
+    gap: 20px;
+  }
+  
+  input {
+    padding: 6px;
+    padding-left: 20px;
+    border: 1px solid #3B3C51;
+    border-radius: 6px;
+    font-size: 18px;
+  }
+
+  input::placeholder {
+    font-size: 18px;
+    color: #B3B3B3;
+  }
+  
+  .login-btn {
+    background-color: #1B48DA;
+    color: white;
+    padding: 12px;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 10px;
+  }
+  
+  .login-btn:hover {
+    background-color: #1a41d1;
+  }
+  
+  .signup-link {
+    font-size: 16px;
+    text-align: center;
+    margin-top: 20px;
+  }
+  
+  .signup-link a {
+    color: #1B48DA;
+    text-decoration: none;
+  }
+  
+  .signup-link a:hover {
+    text-decoration: underline;
+  }

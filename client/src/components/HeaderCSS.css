@@ -1,0 +1,63 @@
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #FFFFFF;
+    border-bottom: 1px solid #ddd;
+    height: 60px;
+}
+
+.full-greeting{
+    display: flex;
+}
+
+.greeting {
+    display: flex;
+    flex-direction: column;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+
+.date {
+    font-size: 12px;
+    color: #878BA9;
+}
+
+.search-bar{
+    height: 40px;
+}
+
+.search-bar input {
+    padding: 8px;
+    border: 1px solid #ECECF2;
+    border-radius: 6px;
+    width: 240px;
+    color: #878BA9;
+}
+
+.profile-pic {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #FDE48A;
+    color: #923E0E;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.createLink{
+    background-color: #1B48DA;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 6px;
+    padding: 12px;
+    padding-left: 20px;
+    padding-right: 20px;
+    font-size: 16px;
+    margin-left: 300px;
+}

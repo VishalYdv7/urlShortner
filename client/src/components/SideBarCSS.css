@@ -1,0 +1,87 @@
+/* SideBar Container */
+.SideBar {
+    width: 250px;
+    height: 100vh;
+    background-color: #FFFFFF;
+    color: #3B3C51;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 0;
+}
+
+/* Logo */
+.logo img {
+    margin: 30px;
+    align-items: center;
+}
+
+/* Links Container */
+.links {
+    margin-top: 130px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* Individual Link Items */
+.dashboardIcon,
+.linkIcon,
+.analyticsIcon,
+.settingsIcon {
+    display: flex;
+    align-items: center;    
+    gap: 10px;
+    padding: 10px 20px;
+    padding-left: 40px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.settingsIcon{
+    margin-top: 30px;
+}
+
+
+/* Icons */
+.dashboardIcon img,
+.linkIcon img,
+.analyticsIcon img,
+.settingsIcon img {
+    width: 24px;
+    height: 24px;
+}
+
+/* Text */
+.dashboardIcon p,
+.linkIcon p,
+.analyticsIcon p,
+.settingsIcon p {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.dashboardIcon.active p,
+.linkIcon.active p,
+.analyticsIcon.active p,
+.settingsIcon.active p {
+  color: #1B48DA; /* Text color for active link */
+}
+
+/* Hover Effect */
+.dashboardIcon:hover,
+.linkIcon:hover,
+.analyticsIcon:hover,
+.settingsIcon:hover {
+    background-color: #3B3C51;
+}
+
+
+.dashboardIcon.active img,
+.linkIcon.active img,
+.analyticsIcon.active img,
+.settingsIcon.active img {
+  filter: brightness(0) saturate(100%) invert(33%) sepia(98%) saturate(1743%) hue-rotate(213deg) brightness(93%) contrast(91%); /* Converts icon color to #1B48DA */
+}
