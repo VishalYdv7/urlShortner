@@ -14,7 +14,7 @@ const Settings = () => {
   const [success, setSuccess] = useState('');
 
   useEffect(() => {
-    fetch('http://localhost:5000/settings')
+    fetch('https://urlshortner-tm61.onrender.com/settings')
       .then(res => res.json())
       .then(data => {
         setFormData({
@@ -39,7 +39,7 @@ const Settings = () => {
     setSuccess('');
 
     try {
-      const response = await fetch('http://localhost:5000/settings', {
+      const response = await fetch('https://urlshortner-tm61.onrender.com/settings', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -62,7 +62,7 @@ const Settings = () => {
   const handleDeleteAccount = async () => {
     if (window.confirm('Are you sure you want to delete the account?')) {
       try {
-        const response = await fetch('http://localhost:5000/settings', {
+        const response = await fetch('https://urlshortner-tm61.onrender.com/settings', {
           method: 'DELETE',
         });
 

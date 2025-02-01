@@ -48,7 +48,7 @@ const EditLink = ({ link, onClose, onSave }) => {
     }
 
     // Save updated link to backend
-    fetch(`http://localhost:5000/links/${link.id}`, {
+    fetch(`https://urlshortner-tm61.onrender.com/links/${link.id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',

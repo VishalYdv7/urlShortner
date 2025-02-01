@@ -13,7 +13,7 @@ const Links = () => {
   const [linkToDelete, setLinkToDelete] = useState(null);
 
   useEffect(() => {
-    fetch('/links', {
+    fetch('https://urlshortner-tm61.onrender.com/links', {
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('token')}`
       }
@@ -59,7 +59,7 @@ const Links = () => {
 
   const handleDeleteConfirm = () => {
     // Delete link from backend
-    fetch(`/links/${linkToDelete.id}`, {
+    fetch(`https://urlshortner-tm61.onrender.com/links/${linkToDelete.id}`, {
       method: 'DELETE',
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('token')}`

@@ -33,7 +33,7 @@ export const Header = () => {
 				return;
 				}
 
-				const response = await axios.get('http://localhost:5000/user', {
+				const response = await axios.get('https://urlshortner-tm61.onrender.com/user', {
 				headers: { Authorization: token },
 				});
 				setUser(response.data); // Set user data in state

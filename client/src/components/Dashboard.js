@@ -13,7 +13,7 @@ const Dashboard = () => {
 	});
 
 	useEffect(() => {
-		fetch('/dashboard', {
+		fetch('https://urlshortner-tm61.onrender.com/dashboard', {
 			headers: {
 				'Authorization': `Bearer ${localStorage.getItem('token')}`
 			}
